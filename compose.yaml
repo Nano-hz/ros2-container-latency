@@ -1,0 +1,33 @@
+services:
+  receiver:
+    build: .
+    container_name: ros2-latency-receiver
+    command: ["python3", "/ros_nodes/receiver.py", "--report-every", "100"]
+    volumes:
+      - ./nodes/receiver.py:/ros_nodes/receiver.py:ro
+    environment:
+      ROS_DOMAIN_ID: "42"
+      ROS_LOCALHOST_ONLY: "0"
+    networks:
+      - ros2
+    init: true
+
+  sender:
+    build: .
+    container_name: ros2-latency-sender
+    command: ["python3", "/ros_nodes/sender.py", "--rate", "100", "--count", "1000"]
+    volumes:
+      - ./nodes/sender.py:/ros_nodes/sender.py:ro
+    environment:
+      ROS_DOMAIN_ID: "42"
+      ROS_LOCALHOST_ONLY: "0"
+    networks:
+      - ros2
+    depends_on:
+      - receiver
+    init: true
+
+networks:
+  ros2:
+    driver: bridge
+
